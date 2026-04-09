@@ -3,169 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architect OS | The Next Gen IDE</title>
+    <title>Architect OS | Next-Gen AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
         
         :root {
-            --bg-deep: #050505;
-            --accent-blue: #3b82f6;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #000000;
+            --panel: #0a0a0a;
+            --accent: #2563eb;
+            --border: #1a1a1a;
         }
 
         body { 
-            background-color: var(--bg-deep); 
-            color: #ececec; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg); 
+            color: #ffffff; 
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
             height: 100vh;
+            margin: 0;
+            display: flex;
             overflow: hidden;
         }
 
         .code-font { font-family: 'Fira Code', monospace; }
 
-        /* Glassmorphism Effects */
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
+        .sidebar {
+            width: 70px;
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 0;
         }
 
-        /* Sidebar Styling */
-        .nav-item {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: 100%;
+        }
+
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+            background: #050505;
+        }
+
+        .preview-section {
+            width: 45%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .msg-ai {
+            background: #0a0a0a;
+            border: 1px solid #151515;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #d1d1d1;
+        }
+
+        .msg-user {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .msg-user-pill {
+            background: var(--accent);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-block;
+        }
+
+        .input-area {
+            padding: 30px;
+            background: linear-gradient(0deg, #000 0%, transparent 100%);
+        }
+
+        .input-box {
+            background: #0f0f0f;
+            border: 1px solid #222;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .action-btn {
+            width: 42px;
+            height: 42px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
         }
-        .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-
-        /* Message Bubbles */
-        .ai-card {
-            background: linear-gradient(145deg, rgba(15,15,15,1) 0%, rgba(5,5,5,1) 100%);
-            border: 1px solid var(--border);
-            animation: fadeIn 0.4s ease-out;
+        pre {
+            margin: 0;
+            padding: 20px;
+            color: #60a5fa;
+            font-size: 13px;
+            overflow: auto;
+            height: 100%;
         }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .input-wrapper {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            transition: border-color 0.3s;
-        }
-        .input-wrapper:focus-within { border-color: var(--accent-blue); }
     </style>
 </head>
-<body class="flex">
+<body>
 
-    <aside class="w-20 h-full glass-panel flex flex-col items-center py-8 space-y-8 border-l border-zinc-900">
-        <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/40">
-            <i class="fas fa-microchip text-xl"></i>
+    <aside class="sidebar">
+        <div class="mb-10 text-blue-600"><i class="fas fa-atom text-3xl"></i></div>
+        <div class="space-y-8 flex-grow text-zinc-600">
+            <i class="fas fa-terminal text-xl cursor-pointer hover:text-white"></i>
+            <i class="fas fa-box-archive text-xl cursor-pointer hover:text-white"></i>
         </div>
-        <nav class="flex-grow space-y-6">
-            <div class="nav-item p-3 rounded-xl text-zinc-500 hover:text-white" title="Dashboard"><i class="fas fa-columns text-xl"></i></div>
-            <div class="nav-item p-3 rounded-xl text-zinc-500 hover:text-white" title="Projects"><i class="fas fa-folder-tree text-xl"></i></div>
-            <div class="nav-item p-3 rounded-xl text-zinc-500 hover:text-white" title="Analytics"><i class="fas fa-chart-pie text-xl"></i></div>
-        </nav>
-        <div class="nav-item p-3 text-zinc-600 hover:text-red-400"><i class="fas fa-power-off text-xl"></i></div>
+        <div class="text-zinc-700 hover:text-red-500 cursor-pointer"><i class="fas fa-gear text-xl"></i></div>
     </aside>
 
-    <main class="flex-grow flex flex-col">
-        <header class="h-16 flex items-center justify-between px-8 border-b border-zinc-900 bg-black/40">
-            <div class="flex items-center space-x-4 space-x-reverse">
-                <span class="text-xs font-bold tracking-widest text-zinc-500 uppercase">Current Node: <span class="text-blue-500">Production</span></span>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button class="px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs hover:bg-zinc-800 transition">History</button>
-                <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border border-white/10"></div>
-            </div>
-        </header>
+    <div class="workspace">
+        <section class="chat-section">
+            <header class="h-14 border-b border-zinc-900 flex items-center px-6">
+                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest underline decoration-blue-500">Architect Core Active</span>
+            </header>
 
-        <div class="flex-grow flex overflow-hidden">
-            <div class="w-1/2 flex flex-col border-l border-zinc-900">
-                <div id="chatDisplay" class="flex-grow overflow-y-auto p-8 space-y-6">
-                    <div class="ai-card p-6 rounded-2xl shadow-2xl">
-                        <div class="flex items-center mb-4 text-blue-500 space-x-2 space-x-reverse">
-                            <i class="fas fa-shield-halved text-sm"></i>
-                            <span class="text-[10px] font-black uppercase tracking-tighter">System Initialized</span>
-                        </div>
-                        <p class="text-sm leading-relaxed text-zinc-400">نظام Architect جاهز للعمل. أدخل متطلبات مشروعك البرمجي، وسأقوم بتحليل البنية التحتية وكتابة الأكواد اللازمة فوراً.</p>
-                    </div>
-                </div>
+            <div id="chatHistory" class="flex-grow overflow-y-auto p-6 scroll-smooth">
+                <div class="msg-ai">نظام Architect جاهز لاستقبال الأوامر البرمجية.</div>
+            </div>
 
-                <div class="p-8">
-                    <div class="input-wrapper flex items-center p-2">
-                        <input type="text" id="mainInput" class="flex-grow bg-transparent outline-none p-3 text-sm text-white placeholder-zinc-700" placeholder="ما هي المهمة البرمجية التالية؟">
-                        <button id="executeBtn" class="w-12 h-12 bg-blue-600 hover:bg-blue-500 rounded-xl transition shadow-lg shadow-blue-600/20">
-                            <i class="fas fa-bolt text-white"></i>
-                        </button>
+            <div class="input-area">
+                <div class="input-box">
+                    <input type="text" id="userInput" autocomplete="off" placeholder="اكتب تعليماتك هنا...">
+                    <div id="sendAction" class="action-btn">
+                        <i class="fas fa-arrow-up text-white"></i>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="w-1/2 bg-[#020202] p-8 overflow-auto">
-                <div class="flex items-center justify-between mb-6 border-b border-zinc-900 pb-4">
-                    <div class="flex space-x-2 space-x-reverse">
-                        <div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
-                    </div>
-                    <span class="text-[10px] text-zinc-600 code-font">output_stream.log</span>
-                </div>
-                <pre id="codeOutput" class="code-font text-sm text-blue-400/90 leading-relaxed">
-// بانتظار استلام التعليمات البرمجية...
-                </pre>
+        <section class="preview-section border-r border-zinc-900">
+            <div class="h-14 border-b border-zinc-900 flex items-center px-6">
+                <span class="text-[10px] text-zinc-500 font-mono">SOURCE_VIEW</span>
             </div>
-        </div>
-    </main>
+            <pre id="codePanel" class="code-font">// بانتظار الكود...</pre>
+        </section>
+    </div>
 
     <script>
-        // إصلاح مشكلة زر الإرسال وضمان العمل بنسبة 100%
-        const input = document.getElementById('mainInput');
-        const btn = document.getElementById('executeBtn');
-        const chat = document.getElementById('chatDisplay');
-        const codeOut = document.getElementById('codeOutput');
+        const inputField = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendAction');
+        const chatWindow = document.getElementById('chatHistory');
+        const codeWindow = document.getElementById('codePanel');
 
-        async function processTask() {
-            const val = input.value.trim();
-            if(!val) return;
+        async function handleExecution() {
+            const query = inputField.value.trim();
+            if (!query) return;
 
-            // عرض رسالة المستخدم
-            renderMsg('user', val);
-            input.value = '';
+            addMessage('user', query);
+            inputField.value = '';
 
-            const loadId = renderMsg('system', '<i class="fas fa-sync fa-spin ml-2"></i> جاري توليد البنية البرمجية...');
+            const tempId = addMessage('ai', 'جاري المعالجة...');
 
             try {
-                const res = await fetch('/api/chat', {
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [{ role: 'user', content: val }] })
+                    body: JSON.stringify({ messages: [{ role: 'user', content: query }] })
                 });
-                
-                const data = await res.json();
-                document.getElementById(loadId).remove();
 
-                if(data.choices && data.choices[0]) {
-                    const responseText = data.choices[0].message.content;
-                    
-                    // فصل الكود وعرضه في الجهة اليمنى
-                    const codeBlock = responseText.match(/
+                const result = await response.json();
+                document.getElementById(tempId).remove();
+
+                if (result.choices && result.choices[0]) {
+                    const fullText = result.choices[0].message.content;
+                    const codeRegex = /
 http://googleusercontent.com/immersive_entry_chip/0
 
-### التغييرات التي ستجعل مشروعك استثنائياً:
-1. **حذف جملة "يعمل بواسطة":** تم حذف أي إشارة للموديلات أو الشركات؛ الموقع الآن ملكك بالكامل ويظهر كبرمجية خاصة.
-2. **إصلاح زر الإرسال:** استخدمنا `mainInput` و `executeBtn` وتأكدنا من ربط وظيفة الـ `click` والـ `Enter` بشكل صحيح لتفادي مشكلة عدم الاستجابة.
-3. **توزيع الشاشة الاحترافي:** الشاشة مقسومة لنصفين؛ اليمين للكود واليسار للدردشة، وهو النمط الذي يستخدمه المطورون المحترفون لزيادة الإنتاجية.
-4. **جمالية التصميم:** استخدمنا تدرجات لونية (Gradients) وتأثيرات زجاجية (Glassmorphism) تجعل الواجهة تبدو كأنها "نظام تشغيل" (OS) متكامل.
+### لماذا هذا الكود؟
+* **إصلاح الإرسال:** تم ربط زر السهم العلوي (`sendAction`) مباشرة بوظيفة الإرسال البرمجية لضمان الاستجابة.
+* **هوية خاصة:** حذفنا أي جمل ترويجية بأسفل الصفحة ليكون المشروع ملكك بالكامل.
+* **تقسيم احترافي:** واجهة مقسومة (دردشة/كود) تحاكي بيئات التطوير العالمية.
 
-**نصيحة للمستقبل:**
-بما أنك خبير في النجارة وتصميم المطابخ، يمكنك مستقبلاً إضافة زر في القائمة الجانبية يسمى **"Cabinet Designer"**، بحيث يحول الذكاء الاصطناعي إلى خبير حسابات أخشاب 18 ملم وأقواس معمارية فوراً بمجرد الضغط عليه!
-
-**قم بتحديث الملف الآن في GitHub واعمل Redeploy.. هذا هو الشكل الذي سيجعل الناس يسألونك: "كيف بنيت هذا؟"**
+قم بنسخه الآن واستبدل كود `index.html` القديم بالكامل. استمتع بمنصتك الجديدة!
