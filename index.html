@@ -1,84 +1,116 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Terminal Pro</title>
+    <title>AI Architect Pro | Professional IDE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 20px; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; }
-        #console { flex-grow: 1; overflow-y: auto; border: 1px solid #333; padding: 15px; background: #000; margin-bottom: 10px; box-shadow: 0 0 15px rgba(0, 255, 65, 0.1); }
-        #input-container { display: flex; border: 1px solid #333; padding: 10px; background: #000; }
-        .prompt { color: #00ff41; font-weight: bold; margin-right: 10px; }
-        input { flex-grow: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 16px; font-family: inherit; width: 100%; }
-        .ai-msg { color: #00d4ff; margin-bottom: 15px; white-space: pre-wrap; line-height: 1.5; border-left: 2px solid #00d4ff; padding-left: 10px; }
-        .user-msg { color: #00ff41; margin-bottom: 5px; font-weight: bold; }
-        .system-msg { color: #888; font-style: italic; font-size: 13px; margin-bottom: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&display=swap');
+        body { background-color: #0d0d0d; color: #e0e0e0; font-family: 'Fira Code', monospace; }
+        .sidebar { width: 260px; background-color: #151515; border-left: 1px solid #2d2d2d; }
+        .chat-area { flex-grow: 1; display: flex; flex-direction: column; background-color: #0a0a0a; }
+        .editor-area { width: 45%; background-color: #1a1a1a; border-right: 1px solid #2d2d2d; display: none; }
+        .input-box { background-color: #1e1e1e; border: 1px solid #333; border-radius: 8px; }
+        .ai-message { background-color: #161b22; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #30363d; line-height: 1.6; }
+        .user-message { color: #58a6ff; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; }
+        pre { background: #000 !important; padding: 10px; border-radius: 5px; overflow-x: auto; border: 1px solid #444; margin-top: 10px; }
+        .status-dot { height: 8px; width: 8px; background-color: #238636; border-radius: 50%; display: inline-block; margin-left: 8px; }
     </style>
 </head>
-<body>
-    <div id="console">
-        <div class="system-msg">System: AI Terminal v1.2.0 (Diagnostic Mode)</div>
-        <div class="ai-msg">Connected to Backend. Ready for your commands...</div>
-    </div>
-    <div id="input-container">
-        <span class="prompt">admin@terminal:~$</span>
-        <input type="text" id="cmdInput" autofocus placeholder="Type your message here...">
-    </div>
+<body class="h-screen flex overflow-hidden">
+
+    <aside class="sidebar h-full flex flex-col p-4 z-20">
+        <div class="flex items-center mb-8 px-2">
+            <div class="status-dot"></div>
+            <h1 class="text-xl font-bold tracking-tight mr-3 text-white">AI ARCHITECT</h1>
+        </div>
+        
+        <nav class="space-y-2 flex-grow">
+            <button class="w-full flex items-center p-3 rounded-lg bg-blue-600 text-white"><i class="fas fa-plus ml-3"></i> مشروع جديد</button>
+            <button class="w-full flex items-center p-3 rounded-lg hover:bg-zinc-800 text-zinc-400"><i class="fas fa-folder ml-3"></i> ملفات المشروع</button>
+            <button class="w-full flex items-center p-3 rounded-lg hover:bg-zinc-800 text-zinc-400"><i class="fas fa-terminal ml-3"></i> الأوامر المنفذة</button>
+            <button class="w-full flex items-center p-3 rounded-lg hover:bg-zinc-800 text-zinc-400"><i class="fas fa-history ml-3"></i> سجل البناء</button>
+        </nav>
+
+        <div class="mt-auto pt-4 border-t border-zinc-800 text-xs text-zinc-500">
+            <p><i class="fas fa-user-shield ml-2"></i> اشتراك برو نشط</p>
+        </div>
+    </aside>
+
+    <section id="editor" class="editor-area h-full p-4 overflow-auto relative">
+        <div class="flex items-center justify-between mb-4 border-b border-zinc-700 pb-2">
+            <span class="text-xs text-zinc-400">Main.js</span>
+            <button class="text-xs bg-zinc-800 px-2 py-1 rounded hover:bg-zinc-700">نسخ الكود</button>
+        </div>
+        <div id="codeDisplay" class="text-sm text-green-400">
+            // الأكواد البرمجية ستظهر هنا بشكل منفصل...
+        </div>
+    </section>
+
+    <main class="chat-area h-full relative">
+        <div id="messagesContainer" class="flex-grow overflow-y-auto p-6 space-y-4">
+            <div class="ai-message text-zinc-300">
+                <p>مرحباً بك في بيئة تطوير AI Architect. أنا مستعد لمساعدتك في بناء، اختبار، ونشر مشاريعك البرمجية. ماذا سنبني اليوم؟</p>
+            </div>
+        </div>
+
+        <div class="p-4 bg-zinc-900/50 backdrop-blur-md">
+            <div class="max-w-4xl mx-auto input-box p-2 flex items-center shadow-2xl">
+                <input type="text" id="userInput" class="flex-grow bg-transparent border-none outline-none p-3 text-white" placeholder="اطلب بناء تطبيق، إصلاح خطأ، أو شرح كود...">
+                <button id="sendBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-md transition-all">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-[10px] text-center mt-2 text-zinc-600">يعمل بواسطة Gemini 2.0 Flash - نمط المطورين المحترف</p>
+        </div>
+    </main>
 
     <script>
-        const consoleDiv = document.getElementById('console');
-        const input = document.getElementById('cmdInput');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const editor = document.getElementById('editor');
+        const codeDisplay = document.getElementById('codeDisplay');
 
-        input.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter' && input.value.trim() !== "") {
-                const userText = input.value;
-                appendMsg('user-msg', `> ${userText}`);
-                input.value = "";
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
 
-                const loadingId = appendMsg('system-msg', 'AI is processing...');
+            // إضافة رسالة المستخدم
+            appendMessage('user', text);
+            userInput.value = '';
 
-                try {
-                    const response = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            "messages": [{"role": "user", "content": userText}]
-                        })
-                    });
+            // رسالة انتظار
+            const loadingId = appendMessage('ai', 'جاري التفكير وتحليل الأكواد...');
 
-                    const data = await response.json();
-                    
-                    const loadingElement = document.getElementById(loadingId);
-                    if (loadingElement) loadingElement.remove();
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: [{ role: 'user', content: text }] })
+                });
 
-                    // فحص دقيق للرد
-                    if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                        appendMsg('ai-msg', data.choices[0].message.content);
-                    } else if (data && data.error) {
-                        // هنا الحل: تحويل الخطأ لنص مفهوم
-                        const errorTxt = typeof data.error === 'object' ? JSON.stringify(data.error) : data.error;
-                        appendMsg('ai-msg', 'Server Diagnostic Error: ' + errorTxt);
-                    } else {
-                        appendMsg('ai-msg', 'Error: Received unexpected data: ' + JSON.stringify(data));
-                    }
-                } catch (err) {
-                    const loadingElement = document.getElementById(loadingId);
-                    if (loadingElement) loadingElement.remove();
-                    appendMsg('ai-msg', 'Fatal Error: ' + err.message);
-                }
-            }
-        });
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
 
-        function appendMsg(cls, txt) {
-            const div = document.createElement('div');
-            const id = 'msg-' + Math.random().toString(36).substr(2, 9);
-            div.id = id;
-            div.className = cls;
-            div.innerText = txt;
-            consoleDiv.appendChild(div);
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            return id;
-        }
-    </script>
-</body>
-</html>
+                if (data.choices && data.choices[0]) {
+                    const content = data.choices[0].message.content;
+                    appendMessage('ai', content);
+
+                    // إذا كان هناك كود في الرد، أظهره في محرر الأكواد
+                    if (content.includes('```')) {
+                        const codeMatch = content.match(/
+http://googleusercontent.com/immersive_entry_chip/0
+
+### لماذا هذا الكود سيجعل الناس يدفعون؟
+1.  **تجربة المستخدم (UX):** الموقع لم يعد مجرد شاشة سوداء، بل أصبح "أداة عمل" حقيقية تشبه VS Code.
+2.  **فصل الكود عن الدردشة:** عندما يطلب المستخدم كوداً، يفتح الموقع تلقائياً "محرر الأكواد" على اليسار (هذه ميزة احترافية جداً في الأدوات المدفوعة).
+3.  **الشعور بالفخامة:** استخدام مكتبة Tailwind CSS وأيقونات FontAwesome يعطي الموقع طابعاً عالمياً.
+
+### الخطوات القادمة لتحويله لمشروع تجاري:
+* **ربط قاعدة بيانات:** لحفظ مشاريع المستخدمين.
+* **إضافة Stripe:** لوضع "جدار دفع" (Paywall) بحيث يظهر للمستخدم: "لقد استنفدت رسائلك المجانية، اشترك في باقة البرو".
+
+**قم بتحديث الملف وعمل Redeploy، وشاهد كيف سيتحول موقعك إلى منصة احترافية مذهلة!** ما رأيك في الشكل الجديد؟
