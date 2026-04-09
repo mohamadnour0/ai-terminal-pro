@@ -35,10 +35,11 @@
                 appendMsg('user-msg', `> ${userText}`);
                 input.value = "";
 
-                const loadingMsg = appendMsg('system-msg', 'AI is processing...');
+                // إضافة رسالة انتظار
+                const loadingId = appendMsg('system-msg', 'AI is processing...');
 
                 try {
-                    // الاتصال بالموزع السري الذي أنشأته في api/chat.js
+                    // الاتصال بالموزع السري في Vercel
                     const response = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -49,16 +50,22 @@
 
                     const data = await response.json();
                     
-                    // إزالة رسالة الانتظار وإضافة رد الذكاء الاصطناعي
-                    const loadingElement = document.getElementById(loadingMsg);
+                    // إزالة رسالة الانتظار
+                    const loadingElement = document.getElementById(loadingId);
                     if (loadingElement) loadingElement.remove();
 
-                    if (data.choices && data.choices[0]) {
+                    // التحقق من صحة الرد المستلم من السيرفر
+                    if (data.choices && data.choices[0] && data.choices[0].message) {
                         appendMsg('ai-msg', data.choices[0].message.content);
+                    } else if (data.error) {
+                        appendMsg('ai-msg', 'Error from Server: ' + data.error);
                     } else {
                         appendMsg('ai-msg', 'Error: Unexpected response format.');
+                        console.error('Invalid response:', data);
                     }
                 } catch (err) {
+                    const loadingElement = document.getElementById(loadingId);
+                    if (loadingElement) loadingElement.remove();
                     appendMsg('ai-msg', 'Error: Connection to backend failed.');
                 }
             }
@@ -66,7 +73,7 @@
 
         function appendMsg(cls, txt) {
             const div = document.createElement('div');
-            const id = 'msg-' + Date.now();
+            const id = 'msg-' + Math.random().toString(36).substr(2, 9);
             div.id = id;
             div.className = cls;
             div.innerText = txt;
