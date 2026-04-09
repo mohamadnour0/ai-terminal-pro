@@ -17,7 +17,7 @@
 </head>
 <body>
     <div id="console">
-        <div class="system-msg">System: AI Terminal v1.1.0 (Secure Mode)</div>
+        <div class="system-msg">System: AI Terminal v1.2.0 (Diagnostic Mode)</div>
         <div class="ai-msg">Connected to Backend. Ready for your commands...</div>
     </div>
     <div id="input-container">
@@ -51,20 +51,20 @@
                     const loadingElement = document.getElementById(loadingId);
                     if (loadingElement) loadingElement.remove();
 
-                    // معالجة الرد بشكل احترافي
-                    if (data.choices && data.choices[0] && data.choices[0].message) {
+                    // فحص دقيق للرد
+                    if (data && data.choices && data.choices[0] && data.choices[0].message) {
                         appendMsg('ai-msg', data.choices[0].message.content);
-                    } else if (data.error) {
-                        // تحويل كائن الخطأ إلى نص مقروء بدلاً من [object Object]
-                        const errorDetail = typeof data.error === 'object' ? JSON.stringify(data.error) : data.error;
-                        appendMsg('ai-msg', 'Error Details: ' + errorDetail);
+                    } else if (data && data.error) {
+                        // هنا الحل: تحويل الخطأ لنص مفهوم
+                        const errorTxt = typeof data.error === 'object' ? JSON.stringify(data.error) : data.error;
+                        appendMsg('ai-msg', 'Server Diagnostic Error: ' + errorTxt);
                     } else {
-                        appendMsg('ai-msg', 'Error: Unexpected response format from Server.');
+                        appendMsg('ai-msg', 'Error: Received unexpected data: ' + JSON.stringify(data));
                     }
                 } catch (err) {
                     const loadingElement = document.getElementById(loadingId);
                     if (loadingElement) loadingElement.remove();
-                    appendMsg('ai-msg', 'Error: Connection to backend failed.');
+                    appendMsg('ai-msg', 'Fatal Error: ' + err.message);
                 }
             }
         });
