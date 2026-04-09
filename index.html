@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Terminal Pro</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 20px; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; }
+        #console { flex-grow: 1; overflow-y: auto; border: 1px solid #333; padding: 15px; background: #000; margin-bottom: 10px; }
+        #input-container { display: flex; border: 1px solid #333; padding: 10px; background: #000; }
+        .prompt { color: #00ff41; font-weight: bold; margin-right: 10px; }
+        input { flex-grow: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 16px; font-family: inherit; }
+        .ai-msg { color: #00d4ff; margin-bottom: 15px; white-space: pre-wrap; line-height: 1.4; }
+        .user-msg { color: #00ff41; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div id="console">
+        <div class="ai-msg">System: AI Terminal v1.0.0 Connected.
+Model: Qwen 2.5 (via OpenRouter)
+Ready for commands...</div>
+    </div>
+    <div id="input-container">
+        <span class="prompt">admin@terminal:~$</span>
+        <input type="text" id="cmdInput" autofocus placeholder="Type your message...">
+    </div>
+
+    <script>
+        const consoleDiv = document.getElementById('console');
+        const input = document.getElementById('cmdInput');
+
+        input.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && input.value.trim() !== "") {
+                const userText = input.value;
+                appendMsg('user-msg', `> ${userText}`);
+                input.value = "";
+
+                try {
+                    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer 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',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            "model": "qwen/qwen-2.5-72b-instruct",
+                            "messages": [{"role": "user", "content": userText}]
+                        })
+                    });
+                    const data = await response.json();
+                    appendMsg('ai-msg', data.choices[0].message.content);
+                } catch (err) {
+                    appendMsg('ai-msg', 'Error: Connection failed.');
+                }
+            }
+        });
+
+        function appendMsg(cls, txt) {
+            const div = document.createElement('div');
+            div.className = cls;
+            div.innerText = txt;
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
