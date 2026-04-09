@@ -1,114 +1,150 @@
-<div id="setup" class="setup-screen">
-    <h1 class="text-4xl font-bold mb-10 text-white">اختر موظفك الرقمي</h1>
-    <div class="flex gap-6">
-        <div class="agent-card" onclick="startApp('مبرمج تطبيقات', 'خبير بناء مواقع وألعاب')">
-            <i class="fas fa-code text-4xl text-blue-500 mb-4"></i>
-            <h3 class="text-xl font-bold">مهندس برمجيات</h3>
-            <p class="text-zinc-500 text-sm mt-2">لبناء أي نظام أو تطبيق تطلبه.</p>
-        </div>
-        <div class="agent-card" onclick="startApp('خبير تداول', 'محلل أسواق ذهب وبوتات تداول')">
-            <i class="fas fa-chart-line text-4xl text-green-500 mb-4"></i>
-            <h3 class="text-xl font-bold">محلل تداول</h3>
-            <p class="text-zinc-500 text-sm mt-2">لتحليل السوق وبناء استراتيجيات الربح.</p>
-        </div>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Architect OS | Enterprise Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* نظام الألوان الاحترافي */
+        :root { --primary: #3b82f6; --bg: #050505; --panel: #0a0a0a; --border: #1a1a1a; }
+        body { background: var(--bg); color: #fff; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; height: 100vh; }
+        
+        /* واجهة اختيار الموظف السينمائية */
+        .selection-overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, #111 0%, #000 100%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
+        .card { background: var(--panel); border: 1px solid var(--border); padding: 2rem; border-radius: 1.5rem; width: 300px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--primary); transform: translateY(-10px); box-shadow: 0 0 40px rgba(59, 130, 246, 0.2); }
+        
+        /* بيئة العمل المتقدمة */
+        .main-layout { display: none; height: 100vh; grid-template-columns: 450px 1fr; }
+        .sidebar { background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+        .preview-area { background: #000; display: flex; flex-direction: column; }
+        .terminal { background: #000; color: #4ade80; font-family: 'Fira Code', monospace; padding: 20px; flex: 1; overflow: auto; font-size: 13px; line-height: 1.6; }
+        iframe { width: 100%; height: 100%; border: none; background: white; display: none; }
+        
+        /* فقاعات الدردشة */
+        .msg { padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; font-size: 14px; max-width: 85%; line-height: 1.5; }
+        .ai { background: #1a1a1a; border: 1px solid #222; }
+        .user { background: var(--primary); color: white; align-self: flex-end; margin-right: auto; }
+    </style>
+</head>
+<body>
 
-<div id="app" class="main-app">
-    <section class="chat-panel">
-        <div class="p-4 bg-zinc-950 border-b border-zinc-900 flex justify-between items-center">
-            <span id="role-name" class="text-blue-500 text-xs font-bold tracking-widest">AGENT READY</span>
-            <button id="run-btn" class="run-btn">RUN ENGINE</button>
-        </div>
-        <div id="chat-messages" class="flex flex-col"></div>
-        <div class="input-area">
-            <div class="flex bg-zinc-900 rounded-xl p-2">
-                <input type="text" id="user-input" class="bg-transparent flex-1 outline-none px-3" placeholder="أعطِ الموظف مهمة...">
-                <button onclick="send()" class="bg-blue-600 w-10 h-10 rounded-lg"><i class="fas fa-paper-plane"></i></button>
+    <div id="selection" class="selection-overlay">
+        <h1 class="text-4xl font-bold mb-12 tracking-tighter">ARCHITECT <span class="text-blue-500">OS</span></h1>
+        <div class="flex gap-8">
+            <div class="card" onclick="launch('Software Architect', 'خبير بناء الأنظمة البرمجية')">
+                <i class="fas fa-microchip text-4xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-bold">مهندس برمجيات</h3>
+                <p class="text-zinc-500 text-xs mt-2">لبناء تطبيقات كاملة من الصفر وتطويرها.</p>
+            </div>
+            <div class="card" onclick="launch('Quant Trader', 'خبير أسواق وبوتات تداول الذهب')">
+                <i class="fas fa-chart-line text-4xl text-green-500 mb-4"></i>
+                <h3 class="text-xl font-bold">محلل تداول آلي</h3>
+                <p class="text-zinc-500 text-sm mt-2">لتحليل شارت الذهب وبناء استراتيجيات ربحية.</p>
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="code-panel">
-        <pre id="code-view">// بانتظار الأكواد . . .</pre>
-        <iframe id="live-view"></iframe>
-    </section>
-</div>
+    <div id="app" class="main-layout">
+        <aside class="sidebar">
+            <div class="p-4 border-b border-zinc-900 flex justify-between items-center bg-zinc-950">
+                <span id="role-tag" class="text-[10px] font-bold text-blue-500 tracking-widest uppercase"></span>
+                <button id="run-btn" class="bg-green-600 text-black text-[10px] font-bold px-3 py-1 rounded hidden">RUN ENGINE</button>
+            </div>
+            <div id="messages" class="flex-1 overflow-y-auto p-4 flex flex-col"></div>
+            <div class="p-4 bg-zinc-950 border-t border-zinc-900">
+                <div class="flex bg-zinc-900 rounded-xl p-2">
+                    <input type="text" id="input" class="bg-transparent flex-1 outline-none px-3 text-sm" placeholder="بماذا سيبدع موظفك اليوم؟">
+                    <button onclick="execute()" class="text-blue-500 p-2"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </aside>
 
-<script>
-    let currentRole = "";
-    const chat = document.getElementById('chat-messages');
-    const code = document.getElementById('code-view');
-    const live = document.getElementById('live-view');
-    const runBtn = document.getElementById('run-btn');
+        <main class="preview-area">
+            <div class="p-2 bg-zinc-950 border-b border-zinc-900 text-[10px] font-mono text-zinc-500 px-4">SOURCE_CONTROL // OUTPUT_STREAM</div>
+            <pre id="terminal" class="terminal">// بانتظار أوامر التنفيذ . . .</pre>
+            <iframe id="viewer"></iframe>
+        </main>
+    </div>
 
-    function startApp(role, desc) {
-        currentRole = role;
-        document.getElementById('setup').style.display = 'none';
-        document.getElementById('app').style.display = 'grid';
-        document.getElementById('role-name').innerText = role.toUpperCase();
-        addMsg(`تم تفعيل بروتوكول ${role}. أنا الموظف الرقمي الخاص بك، كيف يمكنني إبهارك اليوم؟`, 'ai');
-    }
+    <script>
+        let agentRole = "";
 
-    function addMsg(text, type) {
-        const div = document.createElement('div');
-        div.className = `bubble ${type}-msg`;
-        div.innerText = text;
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
-    }
+        function launch(role, desc) {
+            agentRole = role;
+            document.getElementById('selection').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('selection').style.display = 'none';
+                document.getElementById('app').style.display = 'grid';
+                document.getElementById('role-tag').innerText = `Agent: ${role}`;
+                log(`تم تعيين ${role}. أنا الموظف الرقمي الخاص بك الآن. جاهز للإبداع.`, 'ai');
+            }, 500);
+        }
 
-    async function send() {
-        const inp = document.getElementById('user-input');
-        const val = inp.value.trim();
-        if(!val) return;
-        inp.value = '';
-        addMsg(val, 'user');
-        
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'bubble ai-msg';
-        aiMsg.innerText = 'جاري التفكير والتنفيذ...';
-        chat.appendChild(aiMsg);
+        function log(txt, type) {
+            const m = document.getElementById('messages');
+            const d = document.createElement('div');
+            d.className = `msg ${type}`;
+            d.innerText = txt;
+            m.appendChild(d);
+            m.scrollTop = m.scrollHeight;
+        }
 
-        try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    messages: [
-                        {role: 'system', content: `أنت موظف بمهنة ${currentRole}. نفذ المهام بدقة عالية.`},
-                        {role: 'user', content: val}
-                    ]
-                })
-            });
-            const data = await res.json();
-            const reply = data.choices[0].message.content;
-            const match = reply.match(/```[\s\S]*?\n([\s\S]*?)```/);
+        async function execute() {
+            const i = document.getElementById('input');
+            const val = i.value.trim();
+            if(!val) return;
+            i.value = '';
+            log(val, 'user');
             
-            if(match) {
-                code.textContent = match[1].trim();
-                aiMsg.innerText = "تم إنجاز الكود بنجاح. اضغط RUN للمعاينة.";
-                runBtn.style.display = 'block';
-            } else {
-                aiMsg.innerText = reply;
-            }
-        } catch(e) {
-            aiMsg.innerText = "خطأ: تأكد من رفع الموقع على Vercel.";
-        }
-    }
+            const term = document.getElementById('terminal');
+            term.innerText = `> [${agentRole}] جاري التخطيط والتنفيذ الذاتي...`;
 
-    runBtn.onclick = () => {
-        if(live.style.display === 'none') {
-            live.srcdoc = code.textContent;
-            live.style.display = 'block';
-            code.style.display = 'none';
-            runBtn.innerText = 'STOP';
-            runBtn.style.background = '#ef4444';
-        } else {
-            live.style.display = 'none';
-            code.style.display = 'block';
-            runBtn.innerText = 'RUN ENGINE';
-            runBtn.style.background = '#10b981';
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        messages: [
+                            {role: 'system', content: `أنت موظف خبير بمهنة ${agentRole}. لا تعطي وعوداً، بل أعطِ نتائج فورية وأكواد كاملة قابلة للتشغيل.`},
+                            {role: 'user', content: val}
+                        ]
+                    })
+                });
+                const data = await res.json();
+                const content = data.choices[0].message.content;
+                const code = content.match(/```[\s\S]*?\n([\s\S]*?)```/);
+                
+                if(code) {
+                    term.innerText = code[1].trim();
+                    document.getElementById('run-btn').style.display = 'block';
+                    log("تم الانتهاء من المهمة بنجاح. الأكواد جاهزة في نافذة المعالجة.", "ai");
+                } else {
+                    log(content, "ai");
+                    term.innerText = content;
+                }
+            } catch(e) {
+                log("فشل الاتصال: تأكد من رفع الموقع على Vercel ووجود الـ API Key.", "ai");
+            }
         }
-    };
-</script>
+
+        document.getElementById('run-btn').onclick = function() {
+            const v = document.getElementById('viewer');
+            const t = document.getElementById('terminal');
+            if(v.style.display === 'none') {
+                v.srcdoc = t.innerText;
+                v.style.display = 'block';
+                t.style.display = 'none';
+                this.innerText = 'STOP ENGINE';
+                this.className = 'bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded';
+            } else {
+                v.style.display = 'none';
+                t.style.display = 'block';
+                this.innerText = 'RUN ENGINE';
+                this.className = 'bg-green-600 text-black text-[10px] font-bold px-3 py-1 rounded';
+            }
+        };
+    </script>
+</body>
+</html>
