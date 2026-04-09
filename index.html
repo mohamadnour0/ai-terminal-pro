@@ -3,105 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architect OS | Pro</title>
+    <title>Architect OS | Pro Run</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 60px; background: #080808; border-left: 1px solid #111; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-        .main { flex: 1; display: flex; flex-direction: column; }
-        .workspace { flex: 1; display: flex; overflow: hidden; }
-        .chat { flex: 1.2; display: flex; flex-direction: column; background: #050505; border-left: 1px solid #111; }
-        .preview { flex: 1; background: #000; padding: 20px; color: #4ade80; font-family: monospace; overflow-y: auto; white-space: pre-wrap; }
-        #chatBox { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .input-zone { padding: 20px; border-top: 1px solid #111; }
-        .input-bar { background: #0d0d0d; border: 1px solid #222; border-radius: 12px; display: flex; padding: 5px; }
-        input { flex: 1; background: transparent; border: none; outline: none; color: #fff; padding: 10px; }
-        .send-btn { width: 45px; height: 45px; background: #2563eb; border-radius: 10px; cursor: pointer; border: none; color: white; }
-        .msg { padding: 12px; border-radius: 10px; max-width: 80%; font-size: 14px; line-height: 1.5; }
-        .ai { background: #111; border: 1px solid #222; align-self: flex-start; }
-        .user { background: #2563eb; align-self: flex-end; }
-        .error { background: #450a0a; border: 1px solid #991b1b; color: #fca5a5; align-self: center; }
+        .sidebar { width: 64px; background: #080808; border-left: 1px solid #1a1a1a; display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; }
+        .main-workspace { flex: 1; display: flex; flex-direction: column; }
+        .panels { flex: 1; display: flex; overflow: hidden; }
+        .chat-panel { flex: 1.2; display: flex; flex-direction: column; background: #050505; border-left: 1px solid #111; }
+        #chatHistory { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .code-panel { flex: 1; background: #000; border-right: 1px solid #111; display: flex; flex-direction: column; overflow: hidden; }
+        .code-header { height: 40px; padding: 0 15px; background: #080808; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; }
+        pre { flex: 1; margin: 0; padding: 20px; overflow: auto; font-family: monospace; color: #4ade80; }
+        #livePreview { flex: 1; border: none; background: #fff; display: none; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; }
+        .msg-ai { background: #111; border: 1px solid #222; align-self: flex-start; }
+        .msg-user { background: #2563eb; align-self: flex-end; }
+        .input-section { padding: 20px; border-top: 1px solid #111; }
+        .input-container { background: #0d0d0d; border: 1px solid #222; border-radius: 12px; display: flex; padding: 4px; }
+        input { flex: 1; background: transparent; border: none; outline: none; color: #fff; padding: 12px; }
+        .send-btn { width: 42px; height: 42px; background: #2563eb; border-radius: 10px; cursor: pointer; border: none; color: white; }
+        .run-btn { background: #22c55e; color: black; padding: 0 15px; height: 32px; border-radius: 6px; display: none; font-weight: bold; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <i class="fas fa-terminal text-blue-500 text-xl mb-6"></i>
-        <i class="fas fa-code text-zinc-600"></i>
+        <i class="fas fa-terminal text-blue-500 text-2xl"></i>
     </div>
-    <div class="main">
-        <div class="workspace">
-            <div class="chat">
-                <div id="chatBox">
-                    <div class="msg ai">نظام Architect جاهز. ارفع الكود على Vercel ليعمل الإرسال.</div>
-                </div>
-                <div class="input-zone">
-                    <div class="input-bar">
-                        <input type="text" id="userInput" placeholder="اطلب برمجة أي شيء...">
+    <main class="main-workspace">
+        <div class="panels">
+            <section class="chat-panel">
+                <div id="chatHistory"><div class="msg msg-ai">النظام جاهز. اطلب برمجة واضغط Run للمعاينة.</div></div>
+                <div class="input-section">
+                    <div class="input-container">
+                        <input type="text" id="userInput" placeholder="اطلب كود HTML...">
                         <button id="sendBtn" class="send-btn"><i class="fas fa-bolt"></i></button>
                     </div>
                 </div>
-            </div>
-            <div class="preview" id="codeOut">// الأكواد البرمجية ستظهر هنا...</div>
+            </section>
+            <section class="code-panel">
+                <div class="code-header">
+                    <span class="text-xs text-zinc-500">// SOURCE_VIEW</span>
+                    <button id="runBtn" class="run-btn">RUN <i class="fas fa-play ml-1"></i></button>
+                </div>
+                <pre id="codeDisplay">// الأكواد ستظهر هنا...</pre>
+                <iframe id="livePreview"></iframe>
+            </section>
         </div>
-    </div>
+    </main>
 
     <script>
-        const chatBox = document.getElementById('chatBox');
-        const userInput = document.getElementById('userInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const codeOut = document.getElementById('codeOut');
+        const chatBox = document.getElementById('chatHistory');
+        const inputField = document.getElementById('userInput');
+        const codePanel = document.getElementById('codeDisplay');
+        const submitBtn = document.getElementById('sendBtn');
+        const runBtn = document.getElementById('runBtn');
+        const livePreview = document.getElementById('livePreview');
 
-        function addMessage(text, type) {
-            const div = document.createElement('div');
-            div.className = `msg ${type}`;
-            div.textContent = text;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
-            return div;
-        }
+        let isRunning = false;
 
-        async function handleSend() {
-            const val = userInput.value.trim();
-            if (!val) return;
+        async function startProcessing() {
+            const query = inputField.value.trim();
+            if (!query) return;
 
-            userInput.value = '';
-            addMessage(val, 'user');
-            const loadingMsg = addMessage('جاري المعالجة...', 'ai');
+            inputField.value = '';
+            const uDiv = document.createElement('div'); uDiv.className = 'msg msg-user'; uDiv.textContent = query;
+            chatBox.appendChild(uDiv);
+            
+            const aiDiv = document.createElement('div'); aiDiv.className = 'msg msg-ai'; aiDiv.textContent = 'جاري المعالجة...';
+            chatBox.appendChild(aiDiv);
 
             try {
-                // منع الإرسال إذا كان في المعاينة (Preview)
-                if (window.location.hostname.includes('goog')) {
-                    throw new Error("يجب فتح الرابط الحقيقي على Vercel.");
-                }
-
-                const res = await fetch('/api/chat', {
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [{ role: 'user', content: val }] })
+                    body: JSON.stringify({ messages: [{ role: 'user', content: query }] })
                 });
-
-                if (!res.ok) throw new Error("فشل الاتصال بالسيرفر.");
-
-                const data = await res.json();
-                const content = data.choices[0].message.content;
-
-                // استخراج الكود
-                const match = content.match(/```[\s\S]*?\n([\s\S]*?)```/);
-                if (match) {
-                    codeOut.textContent = match[1].trim();
-                    loadingMsg.textContent = 'تم تحديث الكود في النافذة الجانبية.';
+                const result = await response.json();
+                const content = result.choices[0].message.content;
+                const foundCode = content.match(/```[\w]*\n([\s\S]*?)```/);
+                
+                if (foundCode) {
+                    codePanel.textContent = foundCode[1].trim();
+                    aiDiv.textContent = "تم استلام الكود. اضغط زر RUN لتشغيله.";
+                    runBtn.style.display = 'block';
                 } else {
-                    loadingMsg.textContent = content;
+                    aiDiv.textContent = content;
                 }
             } catch (err) {
-                loadingMsg.className = 'msg error';
-                loadingMsg.textContent = `خطأ: ${err.message}`;
+                aiDiv.textContent = "خطأ في الاتصال. تأكد من Vercel.";
             }
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        sendBtn.onclick = handleSend;
-        userInput.onkeydown = (e) => { if (e.key === 'Enter') handleSend(); };
+        runBtn.onclick = function() {
+            if (!isRunning) {
+                livePreview.style.display = 'block';
+                codePanel.style.display = 'none';
+                livePreview.srcdoc = codePanel.textContent;
+                runBtn.innerHTML = 'STOP <i class="fas fa-stop"></i>';
+                runBtn.style.background = '#ef4444';
+                isRunning = true;
+            } else {
+                livePreview.style.display = 'none';
+                codePanel.style.display = 'block';
+                runBtn.innerHTML = 'RUN <i class="fas fa-play"></i>';
+                runBtn.style.background = '#22c55e';
+                isRunning = false;
+            }
+        };
+
+        submitBtn.onclick = startProcessing;
+        inputField.onkeydown = (e) => { if (e.key === 'Enter') startProcessing(); };
     </script>
 </body>
 </html>
