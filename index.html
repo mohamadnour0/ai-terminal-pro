@@ -35,11 +35,9 @@
                 appendMsg('user-msg', `> ${userText}`);
                 input.value = "";
 
-                // إضافة رسالة انتظار
                 const loadingId = appendMsg('system-msg', 'AI is processing...');
 
                 try {
-                    // الاتصال بالموزع السري في Vercel
                     const response = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -50,18 +48,18 @@
 
                     const data = await response.json();
                     
-                    // إزالة رسالة الانتظار
                     const loadingElement = document.getElementById(loadingId);
                     if (loadingElement) loadingElement.remove();
 
-                    // التحقق من صحة الرد المستلم من السيرفر
+                    // معالجة الرد بشكل احترافي
                     if (data.choices && data.choices[0] && data.choices[0].message) {
                         appendMsg('ai-msg', data.choices[0].message.content);
                     } else if (data.error) {
-                        appendMsg('ai-msg', 'Error from Server: ' + data.error);
+                        // تحويل كائن الخطأ إلى نص مقروء بدلاً من [object Object]
+                        const errorDetail = typeof data.error === 'object' ? JSON.stringify(data.error) : data.error;
+                        appendMsg('ai-msg', 'Error Details: ' + errorDetail);
                     } else {
-                        appendMsg('ai-msg', 'Error: Unexpected response format.');
-                        console.error('Invalid response:', data);
+                        appendMsg('ai-msg', 'Error: Unexpected response format from Server.');
                     }
                 } catch (err) {
                     const loadingElement = document.getElementById(loadingId);
