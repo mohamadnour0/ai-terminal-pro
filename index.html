@@ -1,96 +1,32 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>Architect OS Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 60px; background: #080808; border-left: 1px solid #111; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-        .main { flex: 1; display: flex; flex-direction: column; }
-        .workspace { flex: 1; display: flex; overflow: hidden; }
-        .chat { flex: 1; display: flex; flex-direction: column; background: #050505; border-left: 1px solid #111; }
-        .preview { width: 45%; background: #000; padding: 20px; color: #4ade80; font-family: monospace; font-size: 13px; overflow-y: auto; }
-        #chatBox { flex: 1; overflow-y: auto; padding: 20px; }
-        .input-zone { padding: 20px; background: #000; border-top: 1px solid #111; }
-        .input-bar { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; display: flex; padding: 5px; }
-        input { flex: 1; background: transparent; border: none; outline: none; color: #fff; padding: 12px; font-size: 14px; }
-        .send-btn { width: 45px; height: 45px; background: #2563eb; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; }
-        .bubble { margin-bottom: 15px; padding: 12px; border-radius: 10px; max-width: 90%; }
-        .ai { background: #111; color: #ccc; border: 1px solid #222; }
-        .user { background: #2563eb; color: #fff; margin-right: auto; text-align: left; }
-    </style>
-</head>
-<body>
+const uMsg = document.createElement('div');
+        uMsg.className = 'msg user';
+        uMsg.innerText = val;
+        box.appendChild(uMsg);
+        input.value = '';
 
-    <aside class="sidebar">
-        <div class="text-blue-500 mb-10"><i class="fas fa-atom text-2xl"></i></div>
-        <i class="fas fa-code text-zinc-700 mb-8 hover:text-white cursor-pointer"></i>
-        <i class="fas fa-terminal text-zinc-700 hover:text-white cursor-pointer"></i>
-    </aside>
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'msg ai';
+        aiMsg.innerText = 'جاري المعالجة...';
+        box.appendChild(aiMsg);
 
-    <div class="main">
-        <div class="workspace">
-            <section class="chat">
-                <div id="chatBox">
-                    <div class="bubble ai">النظام جاهز. أدخل أوامرك البرمجية.</div>
-                </div>
-                <div class="input-zone">
-                    <div class="input-bar">
-                        <input type="text" id="userInput" placeholder="اكتب هنا..." onkeydown="if(event.key==='Enter') startChat()">
-                        <button onclick="startChat()" class="send-btn">
-                            <i class="fas fa-paper-plane text-white"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
-            <section class="preview" id="codePanel">
-                // الأكواد البرمجية ستظهر هنا...
-            </section>
-        </div>
-    </div>
-
-    <script>
-        async function startChat() {
-            const field = document.getElementById('userInput');
-            const box = document.getElementById('chatBox');
-            const panel = document.getElementById('codePanel');
-            const val = field.value.trim();
-
-            if (!val) return;
-
-            // إضافة رسالة المستخدم
-            const uDiv = document.createElement('div');
-            uDiv.className = 'bubble user';
-            uDiv.innerText = val;
-            box.appendChild(uDiv);
-            field.value = '';
-            box.scrollTop = box.scrollHeight;
-
-            // إضافة رسالة انتظار
-            const aiDiv = document.createElement('div');
-            aiDiv.className = 'bubble ai';
-            aiDiv.innerText = 'جاري المعالجة...';
-            box.appendChild(aiDiv);
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [{ role: 'user', content: val }] })
-                });
-
-                const data = await response.json();
-
-                if (data.choices && data.choices[0]) {
-                    const content = data.choices[0].message.content;
-                    const codeMatch = content.match(/
-http://googleusercontent.com/immersive_entry_chip/0
-
-### لماذا هذا الكود سيعمل بالتأكيد؟
-1.  **الاستدعاء المباشر (`onclick="startChat()"`):** في الأكواد السابقة، كنا ننتظر المتصفح حتى يربط الزر بالدالة، أحياناً يفشل المتصفح في ذلك. هنا، الزر "يعرف" وظيفته بمجرد تحميل الصفحة.
-2.  **دعم مفتاح `Enter`:** أضفت كوداً صغيراً داخل حقل الإدخال ليتم الإرسال بمجرد ضغطك على `Enter`.
-3.  **إزالة التعقيدات:** حذفت أي مكتبات خارجية قد تسبب بطء أو تداخل في الأوامر.
-
-**قم بنسخ هذا الكود بالكامل، وضعه في ملف `index.html` بدلاً من كل شيء هناك، ثم ارفع التحديث. أنا واثق أنك سترى رسالتك تظهر في الشاشة فوراً هذه المرة!**
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({messages: [{role: 'user', content: val}]})
+            });
+            const data = await res.json();
+            const content = data.choices[0].message.content;
+            const match = content.match(/```[\s\S]*?\n([\s\S]*?)```/);
+            if(match) {
+                code.innerText = match[1].trim();
+                aiMsg.innerText = 'تم تحديث الكود.';
+            } else {
+                aiMsg.innerText = content;
+            }
+        } catch(e) {
+            aiMsg.innerText = 'خطأ: تأكد من رفع الموقع على Vercel.';
+        }
+        box.scrollTop = box.scrollHeight;
+    }
+</script>
